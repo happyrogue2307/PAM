@@ -37,7 +37,7 @@ find_package(Threads REQUIRED)
 # copy of Parlay and use that. Otherwise, we will look for an installed version
 # of Parlay on the system.
 #
-option(DOWNLOAD_PARLAY "Download and use a local copy of Parlay rather than looking for an installed version")
+#option(DOWNLOAD_PARLAY "Download and use a local copy of Parlay rather than looking for an installed version")
 if(DOWNLOAD_PARLAY)
   message(STATUS "Downloading a local copy of ParlayLib")
   # Download and configure GoogleTest
