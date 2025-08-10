@@ -38,29 +38,6 @@ find_package(Threads REQUIRED)
 # of Parlay on the system.
 #
 #option(DOWNLOAD_PARLAY "Download and use a local copy of Parlay rather than looking for an installed version")
-if(DOWNLOAD_PARLAY)
-  message(STATUS "Downloading a local copy of ParlayLib")
-  # Download and configure GoogleTest
-  include(FetchContent)
-  FetchContent_Declare(parlaylib
-    GIT_REPOSITORY  https://github.com/cmuparlay/parlaylib.git
-    GIT_TAG         master
-  )
-  FetchContent_GetProperties(parlaylib)
-  if(NOT parlaylib_POPULATED)
-    FetchContent_Populate(parlaylib)  
-    add_subdirectory(${parlaylib_SOURCE_DIR} EXCLUDE_FROM_ALL)
-  endif()
-  target_link_libraries(pam INTERFACE parlay)
-else()
-  find_package(Parlay REQUIRED)
-  if(Parlay_FOUND)
-    message(STATUS "Parlay configuration found at " ${Parlay_DIR})
-    target_link_libraries(pam INTERFACE Parlay::parlay)
-  else()
-    message(FATAL_ERROR "ParlayLib is required but could not be found. Either install it, or set the option -DDOWNLOAD_PARLAY=True to download a local copy of Parlay to use")
-  endif()
-endif()
 
 # Link against jemalloc
 #find_library(JEMALLOC_LIB jemalloc)
