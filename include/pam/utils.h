@@ -11,7 +11,7 @@ namespace utils {
   // for granularity control
   // if the size of a node is smaller than this number then it
   // processed sequentially instead of in parallel
-  size_t node_limit = 100; // should be const
+  constexpr const size_t node_limit = 100; // should be const
 
 
   // for two input sizes of n and m, should we do a parallel fork
