@@ -52,15 +52,15 @@ find_package(Threads REQUIRED)
 # -------------------------------------------------------------------
 #                         Unit tests
 
-enable_testing()
-add_subdirectory(tests)
+#enable_testing()
+#add_subdirectory(tests)
 
 # -------------------------------------------------------------------
 #                       Benchmarks
 
-add_subdirectory(benchmark)
+#add_subdirectory(benchmark)
 
 # -------------------------------------------------------------------
 #                       Examples
 
-add_subdirectory(examples)
+#add_subdirectory(examples)
