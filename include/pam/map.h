@@ -276,9 +276,18 @@ public:
     return x;
   }
     
+  // delete multiple keys from a sequence
+  template<class Seq>
+  static M multi_insert(M m, Seq &SS) {
+    auto replace = [] (const V& a, const V& b) {return b;}; 
+    parlay::sequence<E> A = Build::sort_remove_duplicates(SS);
+    auto x = M(Tree::multi_delete_sorted(m.get_root(), A.data(), A.size(), replace));
+    return x; 
+  }
+    
   // insert multiple keys from a sequence
   template<class Seq>
-  static M multi_insert(M m, Seq const &SS) {
+  static M multi_insert(M m, Seq &SS) {
     auto replace = [] (const V& a, const V& b) {return b;}; 
     parlay::sequence<E> A = Build::sort_remove_duplicates(SS);
     auto x = M(Tree::multi_insert_sorted(m.get_root(), A.data(), A.size(), replace));
