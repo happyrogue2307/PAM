@@ -276,18 +276,9 @@ public:
     return x;
   }
     
-  // delete multiple keys from a sequence
-  template<class Seq>
-  static M multi_insert(M m, Seq &SS) {
-    auto replace = [] (const V& a, const V& b) {return b;}; 
-    parlay::sequence<E> A = Build::sort_remove_duplicates(SS);
-    auto x = M(Tree::multi_delete_sorted(m.get_root(), A.data(), A.size(), replace));
-    return x; 
-  }
-    
   // insert multiple keys from a sequence
   template<class Seq>
-  static M multi_insert(M m, Seq &SS) {
+  static M multi_insert(M m, Seq const &SS) {
     auto replace = [] (const V& a, const V& b) {return b;}; 
     parlay::sequence<E> A = Build::sort_remove_duplicates(SS);
     auto x = M(Tree::multi_insert_sorted(m.get_root(), A.data(), A.size(), replace));
@@ -343,9 +334,17 @@ public:
     return ret;
   }
   
+  // delete multiple keys from an array
+  template<class Seq>
+  static M multi_delete_sorted(M m, Seq &SS) {
+    auto replace = [] (const V& a, const V& b) {return b;};
+    return M(Tree::multi_insert_sorted(m.get_root(), SS.data(),
+				       SS.size(), replace));
+  }
+  
   // insert multiple keys from an array
   template<class Seq>
-  static M multi_insert_sorted(M m, Seq const &SS) {
+  static M multi_insert_sorted(M m, Seq &SS) {
     auto replace = [] (const V& a, const V& b) {return b;};
     return M(Tree::multi_insert_sorted(m.get_root(), SS.data(),
 				       SS.size(), replace));
