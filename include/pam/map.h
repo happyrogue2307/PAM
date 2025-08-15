@@ -338,7 +338,7 @@ public:
   template<class Seq>
   static M multi_delete_sorted(M m, Seq &SS) {
     auto replace = [] (const V& a, const V& b) {return b;};
-    return M(Tree::multi_insert_sorted(m.get_root(), SS.data(),
+    return M(Tree::multi_delete_sorted(m.get_root(), SS.data(),
 				       SS.size(), replace));
   }
   
@@ -350,6 +350,19 @@ public:
 				       SS.size(), replace));
   }
 
+  template<class Seq, typename It, typename S>
+  static M multi_insert_range(M m, parlay::slice<It,S> slice){
+    auto replace = [] (const V& a, const V&b) {return b;};
+    return M(Tree::multi_insert_sorted(m.get_root(), &(*slice.begin()), (slice.end() - slice.begin()),
+                      replace));
+  }
+
+  template<class Seq, typename It, typename S>
+  static M multi_delete_range(M m, parlay::slice<It,S> slice){
+    auto replace = [] (const V& a, const V&b) {return b;};
+    return M(Tree::multi_delete_sorted(m.get_root(), &(*slice.begin()), (slice.end() - slice.begin()),
+                      replace));
+  }
   // insert multiple keys from an array, combine duplicates with f
   // here f must have type: V x V -> V
   // if key in map, then also combined with f
