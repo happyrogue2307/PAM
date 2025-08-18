@@ -26,6 +26,12 @@ using key_type = size_t;
 using key_type = unsigned int;
 #endif
 
+
+// MY FUNCTIONS
+double test_ranged_updates_thorough(int n);
+double test_ranged_updates_simple(int n);
+// END MY FUNCTIONS 
+
 struct Add {
   using T = key_type;
   static T add(T a, T b) { return a+b;}
@@ -53,6 +59,10 @@ struct entry3 {
   using key_t = key_type;
   using val_t = char;
   static inline bool comp(key_t a, key_t b) { return a < b;}
+};
+struct entry4{
+  using key_t = key_type;
+  static inline bool comp(key_t a, key_t b){return a < b;}
 };
 
 using par = pair<key_type, key_type>;
@@ -175,6 +185,8 @@ bool check_multi_insert(const parlay::sequence<par>& m1, const parlay::sequence<
 
   return ret;
 }
+double test_ranged_updates_simple(int n);
+
 
 bool check_intersect(const tmap& m1, const tmap& m2, const tmap& m3) {
   vector<key_type> e1(m1.size());
@@ -925,7 +937,7 @@ double intersect_multi_type(size_t n, size_t m) {
 }
 
 string test_name[] = {
-  "persistent-union",      // 0
+  "Ranged Updates Thorough",      // 0 - NOTE: This was not the original test
   "persistent-intersect",  // 1
   "insert",                // 2
   "std::map-insert",       // 3
@@ -988,7 +1000,7 @@ double execute(size_t id, size_t n, size_t m) {
 
   switch (id) {
   case 0:
-    return test_union(n, m);
+    return test_ranged_updates_thorough(n); 
   case 1:
     return test_intersect(n, m);
   case 2:
@@ -1076,14 +1088,65 @@ void test_loop(size_t n, size_t m, size_t repeat, size_t test_id, bool randomize
   }
 }
 
-int main (int argc, char *argv[]) {
+double test_ranged_updates_simple(int n){
+  int i = 0, j = n/2;
+   pam_set<entry4> the_map; 
+
+  parlay::sequence<entry4::key_t> items;
+  for(int i = 1; i <= n; i++){
+    items.push_back(i);
+  }
+
+  parlay::slice<key_type*, key_type*> range(items.begin(), items.begin() + j);
+  the_map = the_map.multi_insert_range<parlay::sequence<key_type>, key_type*, key_type*> (the_map, range);
+  check(the_map.size() == j, "Map size is wrong");
+  for(int i = 1; i <= 10; i++){
+    check(the_map.contains(i), "Item Not Found " + std::to_string(i));
+  }
+  parlay::slice<key_type*, key_type*> range2(items.begin(), items.begin() + j);
+  the_map = the_map.multi_delete_range<parlay::sequence<key_type>, key_type*, key_type*>(the_map, range2);
+  check(the_map.size() == 0, "map size is wrong after deletions");
+  return 0;
+}
+
+double test_ranged_updates_thorough(int n){
+  int num_trials = 100;
+  for(int trial = 1; trial <= num_trials; trial++){
+    int start = rand() % n, end = rand() % n;
+    if(end < start){
+      std::swap(start,end);
+    }
+    std::cout << start << " " << end << ":\n";
+    pam_set<entry4> the_set;
+    parlay::sequence<entry4::key_t> items;
+    for(int i = 1; i <= n; i++){
+      items.push_back(i);
+    }
+    parlay::slice<key_type*, key_type*> range(items.begin() + start, items.begin() + end); 
+    the_set = the_set.multi_insert_range<parlay::sequence<key_type>, key_type*, key_type*>(the_set, range);
+    check(the_set.size() == end - start, "Set size after insertions is wrong, Start: " + std::to_string(start) + " " + std::to_string(end));
+    if(the_set.size() != 0){
+      int new_start = start + (rand() % the_set.size()), new_end = start + (rand() % the_set.size());
+      if(new_start > new_end) std::swap(new_start, new_end);
+      parlay::slice<key_type *, key_type *> range2(items.begin() + new_start, items.begin() + new_end);
+      auto prev_size = the_set.size();
+      the_set = the_set.multi_delete_range<parlay::sequence<key_type>, key_type *, key_type *>(the_set, range2);
+      check(the_set.size() == prev_size - (new_end - new_start), "map size is wrong after deletions " + std::to_string(start) + " " 
+             + std::to_string(end) + " " + std::to_string(new_start) + " " + std::to_string(new_end) + " Map size: " + to_string(the_set.size()) + " Expected: " + to_string(prev_size - (new_end - new_start)));
+    }
+  }
+  return 0;
+}
+int main(int argc, char *argv[]) {
   commandLine P(argc, argv,
-		"[-n size1] [-m size2] [-r rounds] [-p] [-use] <testid>");
-  if (P.getOption("-use")) {
-	  for (int i = 0; i < 31; i++) {
-		  cout << "test " << i << "\t" << test_name[i] << endl;
-	  }
-	  return 0;
+                "[-n size1] [-m size2] [-r rounds] [-p] [-use] <testid>");
+  if (P.getOption("-use"))
+  {
+    for (int i = 0; i < 31; i++)
+    {
+      cout << "test " << i << "\t" << test_name[i] << endl;
+    }
+    return 0;
   }
   size_t n = P.getOptionLongValue("-n", 10000000);
   size_t m = P.getOptionLongValue("-m", n);

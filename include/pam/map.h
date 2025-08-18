@@ -353,8 +353,7 @@ public:
   template<class Seq, typename It, typename S>
   static M multi_insert_range(M m, parlay::slice<It,S> slice){
     auto replace = [] (const V& a, const V&b) {return b;};
-    return M(Tree::multi_insert_sorted(m.get_root(), &(*slice.begin()), (slice.end() - slice.begin()),
-                      replace));
+    return M(Tree::multi_insert_sorted(m.get_root(), &(*slice.begin()), (slice.end() - slice.begin()), replace));
   }
 
   template<class Seq, typename It, typename S>
